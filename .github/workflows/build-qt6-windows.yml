@@ -34,6 +34,7 @@ jobs:
       shell: cmd
       run: |
         dir "${{ github.workspace }}"
+        dir "${QT_ROOT_DIR}"
         call "${{ github.workspace }}\${{ env.QT_VERSION }}\${{ env.QT_ARCH }}\bin\qtenv2.bat"
         qmake --version
 
