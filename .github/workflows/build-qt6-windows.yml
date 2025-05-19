@@ -17,21 +17,14 @@ jobs:
         submodules: recursive  # Если есть подмодули
 
     - name: Setup Qt
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
       with:
-        version: '6.5.0'  # Укажите нужную версию Qt (можно 5.15.2, если проект использует Qt5)
-        dir: 'C:\Qt'  # Путь установки (можно не менять)
-        install-deps: true  # Установить зависимости (MinGW/MSVC)
-        cached: true  # Кэширование для ускорения сборки
-        setup-python: false  # Python не нужен (если не требуется)
-
-    - name: Add Qt to PATH
-      shell: cmd
-      run: |
-        call "C:\Qt\6.5.0\msvc2019_64\bin\qtenv2.bat"  # Для Qt6 + MSVC
-        # Если используется MinGW:
-        # call "C:\Qt\6.5.0\mingw_64\bin\qtenv2.bat"
-        qmake --version
+        version: '6.8.3'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
+        use-official: true
+        email: ${{ secrets.QT_EMAIL }}
+        pw: ${{ secrets.QT_PW }}
 
     - name: Build with qmake
       shell: cmd
