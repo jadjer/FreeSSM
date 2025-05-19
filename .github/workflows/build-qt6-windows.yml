@@ -33,14 +33,12 @@ jobs:
     - name: Setup Qt environment
       shell: cmd
       run: |
-        dir "${{ github.workspace }}"
-        dir "${QT_ROOT_DIR}"
-        call "${{ github.workspace }}\${{ env.QT_VERSION }}\${{ env.QT_ARCH }}\bin\qtenv2.bat"
         qmake --version
 
     - name: Build with qmake
       shell: cmd
       run: |
+        dir .
         qmake -recursive FreeSSM.pro  # Или другой .pro файл, если он называется иначе
         nmake release  # Для MSVC
         # Если MinGW: mingw32-make release
