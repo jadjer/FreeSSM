@@ -26,9 +26,9 @@ jobs:
         version: ${{ env.QT_VERSION }}
         target: "desktop"
         arch: ${{ env.QT_ARCH }}
-        use-official: true
-        email: ${{ secrets.QT_EMAIL }}
-        pw: ${{ secrets.QT_PW }}
+        # use-official: true
+        # email: ${{ secrets.QT_EMAIL }}
+        # pw: ${{ secrets.QT_PW }}
 
     - name: Setup Qt environment
       shell: cmd
@@ -38,20 +38,18 @@ jobs:
     - name: Build with qmake
       shell: cmd
       run: |
-        dir .
-        qmake -recursive FreeSSM.pro  # Или другой .pro файл, если он называется иначе
-        nmake release  # Для MSVC
-        # Если MinGW: mingw32-make release
+        qmake .
+        make release
 
-    - name: Collect binaries
-      shell: cmd
-      run: |
-        mkdir artifacts
-        copy release\*.exe artifacts\  # Или другой путь, куда собирается бинарник
-        7z a artifacts.zip .\artifacts\*
+    # - name: Collect binaries
+    #   shell: cmd
+    #   run: |
+    #     mkdir artifacts
+    #     copy release\*.exe artifacts\  # Или другой путь, куда собирается бинарник
+    #     7z a artifacts.zip .\artifacts\*
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: FreeSSM-Windows
-        path: artifacts.zip
+    # - name: Upload artifacts
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: FreeSSM-Windows
+    #     path: artifacts.zip
