@@ -26,7 +26,9 @@ jobs:
         version: ${{ env.QT_VERSION }}
         target: "desktop"
         arch: ${{ env.QT_ARCH }}
-        # use-official: true
+        install-deps: true
+        cached: true
+        use-official: true
         # email: ${{ secrets.QT_EMAIL }}
         # pw: ${{ secrets.QT_PW }}
 
