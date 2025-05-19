@@ -38,7 +38,7 @@ jobs:
     - name: Build with qmake
       shell: cmd
       run: |
-        qmake .
+        qmake
         make release
 
     # - name: Collect binaries
