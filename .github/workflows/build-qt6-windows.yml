@@ -7,8 +7,8 @@ on:
     branches: [ master ]
 
 env:
-  QT_VERSION: "5.15.2"
-  QT_ARCH: "win32_mingw81"
+  QT_VERSION: "6.9.0"
+  QT_ARCH: "win64_mingw"
 
 jobs:
   build:
