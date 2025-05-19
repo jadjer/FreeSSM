@@ -1,63 +1,54 @@
-name: Build Qt6 Application (Windows x64)
+name: Windows Qt Build
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
-
-env:
-  QT_VERSION: 6.7.0
-  BUILD_DIR: build
-  INSTALL_DIR: install
+    branches: [ main ]
 
 jobs:
   build:
-    name: Build and Package Qt6 App
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive  # Если есть подмодули
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"  # Qt6 может требовать Python 3.10
+    - name: Setup Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.5.0'  # Укажите нужную версию Qt (можно 5.15.2, если проект использует Qt5)
+        dir: 'C:\Qt'  # Путь установки (можно не менять)
+        install-deps: true  # Установить зависимости (MinGW/MSVC)
+        cached: true  # Кэширование для ускорения сборки
+        setup-python: false  # Python не нужен (если не требуется)
 
-      - name: Setup Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: ${{ env.QT_VERSION }}
-          host: windows
-          target: desktop
-          arch: win64_msvc2022_64  # Используем MSVC 2022 для Qt 6.7.0
-          modules: qtbase qttools qtdeclarative qt5compat
-          install-deps: true
+    - name: Add Qt to PATH
+      shell: cmd
+      run: |
+        call "C:\Qt\6.5.0\msvc2019_64\bin\qtenv2.bat"  # Для Qt6 + MSVC
+        # Если используется MinGW:
+        # call "C:\Qt\6.5.0\mingw_64\bin\qtenv2.bat"
+        qmake --version
 
-      - name: Configure CMake
-        run: |
-          cmake -B ${{ env.BUILD_DIR }} -S . \
-            -G "Visual Studio 17 2022" -A x64 \
-            -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}" \
-            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/${{ env.INSTALL_DIR }}"
+    - name: Build with qmake
+      shell: cmd
+      run: |
+        qmake -recursive FreeSSM.pro  # Или другой .pro файл, если он называется иначе
+        nmake release  # Для MSVC
+        # Если MinGW: mingw32-make release
 
-      - name: Build project
-        run: |
-          cmake --build ${{ env.BUILD_DIR }} --config Release --target install
+    - name: Collect binaries
+      shell: cmd
+      run: |
+        mkdir artifacts
+        copy release\*.exe artifacts\  # Или другой путь, куда собирается бинарник
+        7z a artifacts.zip .\artifacts\*
 
-      - name: Collect binaries (optional)
-        run: |
-          mkdir -p dist
-          cp -r ${{ env.BUILD_DIR }}/Release/*.exe dist/ || true
-          cp -r ${{ env.BUILD_DIR }}/Release/*.dll dist/ || true
-
-      - name: Archive installation directory
-        run: |
-          Compress-Archive -Path ${{ env.INSTALL_DIR }} -DestinationPath app.zip -Force
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Qt6-Windows-App
-          path: app.zip
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: FreeSSM-Windows
+        path: artifacts.zip
