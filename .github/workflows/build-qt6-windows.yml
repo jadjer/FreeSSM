@@ -1,0 +1,60 @@
+name: Build Qt6 Application (Windows x64)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  QT_VERSION: 6.7.0
+  BUILD_DIR: build
+  INSTALL_DIR: install
+
+jobs:
+  build:
+    name: Build and Package Qt6 App
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: windows
+          target: desktop
+          arch: win64_msvc2019_64
+          modules: qtbase qttools qtdeclarative qt5compat
+          install-deps: true
+
+      - name: Configure CMake
+        run: |
+          cmake -B ${{ env.BUILD_DIR }} -S . \
+            -G "Visual Studio 17 2022" -A x64 \
+            -DCMAKE_PREFIX_PATH="${{ env.QT_DIR }}" \
+            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/${{ env.INSTALL_DIR }}"
+
+      - name: Build project
+        run: |
+          cmake --build ${{ env.BUILD_DIR }} --config Release --target install
+
+      - name: Collect binaries (optional)
+        run: |
+          mkdir -p dist
+          cp -r ${{ env.BUILD_DIR }}/Release/*.exe dist/ || true
+          cp -r ${{ env.BUILD_DIR }}/Release/*.dll dist/ || true
+
+      - name: Archive installation directory
+        run: |
+          Compress-Archive -Path ${{ env.INSTALL_DIR }} -DestinationPath app.zip -Force
+          # или, если используется папка dist:
+          # Compress-Archive -Path dist -DestinationPath app.zip -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Qt6-Windows-App
+          path: app.zip
