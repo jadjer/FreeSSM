@@ -35,6 +35,7 @@ jobs:
       run: |
         qmake --version
 
+    - uses: ilammy/msvc-dev-cmd@v1
     - name: Build with qmake
       shell: cmd
       run: |
