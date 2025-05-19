@@ -26,7 +26,7 @@ jobs:
           version: ${{ env.QT_VERSION }}
           host: windows
           target: desktop
-          arch: win64_msvc2019_64
+          arch: win64_msvc2022_64  # Используем MSVC 2022 для Qt 6.7.0
           modules: qtbase qttools qtdeclarative qt5compat
           install-deps: true
 
@@ -50,8 +50,6 @@ jobs:
       - name: Archive installation directory
         run: |
           Compress-Archive -Path ${{ env.INSTALL_DIR }} -DestinationPath app.zip -Force
-          # или, если используется папка dist:
-          # Compress-Archive -Path dist -DestinationPath app.zip -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
